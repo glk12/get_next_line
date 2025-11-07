@@ -6,11 +6,10 @@
 /*   By: glopes-a <glopes-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 14:16:30 by glopes-a          #+#    #+#             */
-/*   Updated: 2025/11/04 16:45:57 by glopes-a         ###   ########.fr       */
+/*   Updated: 2025/11/07 16:02:49 by glopes-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
 #include "get_next_line.h"
 
 static char	*read_join(char *line, int fd, char *buf)
@@ -39,24 +38,24 @@ static char	*read_join(char *line, int fd, char *buf)
 	return (line);
 }
 
-static char	*extract_line(char *line, char **rest)
+static char	*extract_line(char *fullbuf, char **rest)
 {
 	char	*newline;
-	char	*result;
+	char	*line;
 	size_t	pos;
 
-	if (!line)
+	if (!fullbuf)
 		return (NULL);
-	newline = ft_strchr(line, '\n');
+	newline = ft_strchr(fullbuf, '\n');
 	if (newline)
 	{
-		pos = newline - line;
-		*rest = ft_substr(line, pos + 1, ft_strlen(line) - (pos + 1));
-		result = ft_substr(line, 0, pos + 1);
-		free(line);
-		return (result);
+		pos = newline - fullbuf;
+		*rest = ft_substr(fullbuf, pos + 1, ft_strlen(fullbuf) - (pos + 1));
+		line = ft_substr(fullbuf, 0, pos + 1);
+		free(fullbuf);
+		return (line);
 	}
-	return (line);
+	return (fullbuf);
 }
 
 static char	*check_rest(char **rest, char **line)
@@ -82,13 +81,14 @@ static char	*check_rest(char **rest, char **line)
 	*rest = NULL;
 	return (NULL);
 }
-
+;
 char	*get_next_line(int fd)
 {
 	char		*line;
 	static char	*rest;
 	char		*result;
 	char		*buf;
+	char		*fullbuf;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
@@ -99,10 +99,10 @@ char	*get_next_line(int fd)
 	buf = (char *)malloc(BUFFER_SIZE + 1);
 	if (!buf)
 		return (NULL);
-	line = read_join(line, fd, buf);
-	return (extract_line(line, &rest));
+	fullbuf = read_join(line, fd, buf);
+	line = extract_line(fullbuf, &rest);
+	return (line);
 }
-/*
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -124,4 +124,3 @@ int main(void)
     close(fd);
     return (0);
 }
-*/
